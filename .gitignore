@@ -154,5 +154,6 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# .xml files
+# .xml and .iml files (Pycharm)
 *.xml
+*.iml
