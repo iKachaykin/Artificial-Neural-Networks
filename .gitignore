@@ -153,3 +153,6 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+# .xml files
+*.xml
