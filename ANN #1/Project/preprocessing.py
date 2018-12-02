@@ -31,9 +31,10 @@ def standardize_size(path_source, path_dest, subfolders_source, subfolders_dest,
             new_img.save(path_dest + subfolders_dest[sf] + name)
 
 
-def trim_edges(path_source, path_dest, subfolders_source, subfolders_dest, tqdm_flag=False):
+def trim_edges(path_source, path_dest, subfolders_source, subfolders_dest, tqdm_flag=False, margin=(0, 0, 0, 0)):
     if len(subfolders_source) != len(subfolders_dest):
         raise ValueError('Sizes of arguments "subfolders_source" and "subfolders_dest" must correspond to each other!')
+    m_left, m_right, m_top, m_bot = margin
     for sf in range(len(subfolders_source)):
         old_imgs_names = [file for file in os.listdir(path_source + subfolders_source[sf]) if file.endswith('.png')]
         name_it = tqdm.tqdm(old_imgs_names) if tqdm_flag else old_imgs_names
@@ -43,10 +44,12 @@ def trim_edges(path_source, path_dest, subfolders_source, subfolders_dest, tqdm_
             tmp_matrix = np.argwhere(old_img_matrix)
             i_min, j_min = tuple(tmp_matrix[tmp_matrix.argmin(axis=0)])
             i_max, j_max = tuple(tmp_matrix[tmp_matrix.argmax(axis=0)])
-            i_min, j_min = i_min[0] - 1 if i_min[0] > 0 else 0, j_min[1] - 1 if j_min[1] > 0 else 0
+            i_min, j_min = i_min[0] - m_top if i_min[0] - m_top >= 0 \
+                               else 0,\
+                           j_min[1] - m_left if j_min[1] - m_left >= 0 else 0
             i_max, j_max = \
-                i_max[0] + 1 if i_max[0] + 1 < old_img.shape[0] else old_img.shape[0] - 1,\
-                j_max[1] + 1 if j_max[1] + 1 < old_img.shape[1] else old_img.shape[1] - 1
+                i_max[0] + m_bot if i_max[0] + m_bot < old_img.shape[0] else old_img.shape[0] - 1,\
+                j_max[1] + m_right if j_max[1] + m_right < old_img.shape[1] else old_img.shape[1] - 1
             imageio.imwrite(path_dest + subfolders_source[sf] + name, old_img[i_min:i_max+1, j_min:j_max+1])
 
 

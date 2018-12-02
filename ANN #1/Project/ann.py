@@ -46,6 +46,7 @@ class PerceptronLgst:
         self.momentum_c = momentum_c
         self.weights = []
         self.errors = []
+        self.test_errors = []
         self.error = 0.0
         for i in range(layer_n):
             tmp = []
@@ -83,14 +84,22 @@ class PerceptronLgst:
                               local_grads[i].reshape(local_grads[i].size, 1) * \
                               (y[i] * np.ones((local_grads[i].size, y[i].size)))
 
-    def fit(self, sample, output):
+    def fit(self, sample, output, test_sample, test_output):
+        self.errors = []
+        self.test_errors = []
         for _ in tqdm.tqdm(range(self.epoch_n)):
             order = np.arange(sample.shape[0])
             np.random.shuffle(order)
             for i in order:
                 self.fit_once(sample[i], output[i])
-            self.errors.append(self.error)
+            self.errors.append(self.error / sample.shape[0])
             self.error = 0.0
+            for i in range(test_sample.shape[0]):
+                self.error += np.sum((test_output[i] - self.predict(test_sample[i])) ** 2) / 2
+            self.test_errors.append(self.error / test_sample.shape[0])
+            self.error = 0.0
+        self.errors = np.array(self.errors)
+        self.test_errors = np.array(self.test_errors)
 
     def predict(self, x):
         y = [np.concatenate(([1], x.copy()))]
